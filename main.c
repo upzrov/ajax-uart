@@ -9,7 +9,6 @@
 #include <time.h>
 #include <unistd.h>
 
-
 volatile sig_atomic_t keep_running = 1;
 int serial_fd = -1;
 FILE *log_file = NULL;
