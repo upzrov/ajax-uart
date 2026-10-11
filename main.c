@@ -1,21 +1,27 @@
 #include <fcntl.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
 
+volatile sig_atomic_t keep_running = 1;
+int serial_fd = -1;
+
+void handle_signal(int sig) {
+  if (sig == SIGINT || sig == SIGTERM) {
+    keep_running = 0;
+  }
+}
 
 int setup_uart(const char *device) {
   int fd = open(device, O_RDWR | O_NOCTTY | O_SYNC);
   if (fd < 0)
     return -1;
-
   struct termios options;
   tcgetattr(fd, &options);
-
   cfsetispeed(&options, B115200);
   cfsetospeed(&options, B115200);
-
   options.c_cflag &= ~PARENB;
   options.c_cflag &= ~CSTOPB;
   options.c_cflag &= ~CSIZE;
@@ -26,7 +32,6 @@ int setup_uart(const char *device) {
   options.c_oflag &= ~OPOST;
   options.c_cc[VMIN] = 1;
   options.c_cc[VTIME] = 0;
-
   tcsetattr(fd, TCSANOW, &options);
   return fd;
 }
@@ -37,14 +42,23 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  int serial_fd = setup_uart(argv[1]);
+  signal(SIGINT, handle_signal);
+  signal(SIGTERM, handle_signal);
+
+  serial_fd = setup_uart(argv[1]);
   if (serial_fd < 0) {
     fprintf(stderr, "Помилка: неможливо відкрити порт %s\n", argv[1]);
     return EXIT_FAILURE;
   }
 
-  printf("Порт %s успішно відкрито та налаштовано (115200 8N1).\n", argv[1]);
+  printf("Сервер запущено на %s. Натисніть Ctrl+C для виходу.\n", argv[1]);
 
-  close(serial_fd);
+  while (keep_running) {
+    sleep(1); // Тимчасова заглушка до реалізації ECHO
+  }
+
+  printf("\nЗавершення роботи...\n");
+  if (serial_fd >= 0)
+    close(serial_fd);
   return EXIT_SUCCESS;
 }
