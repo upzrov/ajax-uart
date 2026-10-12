@@ -1,0 +1,6 @@
+BasedOnStyle: Chromium
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+ColumnLimit: 80
+SortIncludes: true
