@@ -1,0 +1,16 @@
+[Unit]
+Description=UART Echo Service (mycom)
+After=network.target
+
+[Service]
+Type=simple
+User=xrov
+WorkingDirectory=/home/xrov
+ExecStart=/home/xrov/mycom /dev/serial0
+Restart=on-failure
+RestartSec=3s
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
