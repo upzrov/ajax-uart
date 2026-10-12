@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
 
   serial_fd = setup_uart(argv[1]);
   if (serial_fd < 0) {
+    fprintf(stderr, "Помилка: відсутній або немає доступу до %s\n", argv[1]);
     fprintf(log_file, "Помилка: відсутній або немає доступу до %s\n", argv[1]);
     fclose(log_file);
     return EXIT_FAILURE;
