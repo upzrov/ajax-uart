@@ -1,14 +1,20 @@
 [Unit]
-Description=UART Echo Service (mycom)
-After=network.target
+Description=UART Echo Service (mycom) on Raspberry Pi 5
+After=sysinit.target
+Wants=sysinit.target
 
 [Service]
 Type=simple
 User=xrov
+Group=xrov
+SupplementaryGroups=dialout
 WorkingDirectory=/home/xrov
-ExecStart=/home/xrov/mycom /dev/serial0
+ExecStart=/usr/local/bin/mycom /dev/serial0
 Restart=on-failure
 RestartSec=3s
+KillMode=process
+KillSignal=SIGTERM
+TimeoutStopSec=5s
 StandardOutput=journal
 StandardError=journal
 
